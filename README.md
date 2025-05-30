@@ -40,16 +40,16 @@
 
 3. Set up .env:
    
-   DB_HOST=localhost
-   DB_USER=your_db_user
-   DB_PASSWORD=your_db_password
-   DB_NAME=agrochain
+   - DB_HOST=localhost
+   - DB_USER=your_db_user
+   - DB_PASSWORD=your_db_password
+   - DB_NAME=agrochain
 
 
-4. Start Ganache and Deploy your smart contract:
+5. Start Ganache and Deploy your smart contract:
 
 
-5. Run the server:
+6. Run the server:
    - npm start
 
 
