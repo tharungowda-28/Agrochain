@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order UI</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    button:hover {
+  background-color: #1e8449;
+  transform: scale(1.05); /* Subtle zoom effect */
+}
+
+    h1 {
+      text-align: center;
+      color: #27ae60;
+      margin-top: 20px;
+      animation: fadeInDown 1s ease-in-out;
+    }
+
+    .order-card {
+      width: 80%;
+      background-color: #fff;
+      margin: 20px auto;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      animation: fadeInUp 0.5s ease-in-out;
+    }
+
+    .order-details {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 15px;
+    }
+
+    .order-details .detail {
+      width: 48%;
+    }
+
+    .order-details .detail label {
+      display: block;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 5px;
+    }
+
+    .order-details .detail span {
+      display: block;
+      color: #555;
+      font-size: 1rem;
+      padding: 8px;
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    .order-actions {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 10px 15px;
+      cursor: pointer;
+      margin: 10px;
+      border: none;
+      color: white;
+      border-radius: 5px;
+      background-color: #27ae60;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #1e8449;
+    }
+
+    footer {
+      text-align: center;
+      background-color: black;
+      height:40px;
+      color: white;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      padding: 10px 0;
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <h1>Your Orders</h1> 
+  <div id="notification-container" style="position: fixed; top: 20px; right: 20px;">
+    <div id="notification-bar" style="display: none; background-color: #f8f9fa; padding: 10px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);">
+      <i class="fas fa-bell"></i> 
+      <span id="notification-message"></span>
+    </div>
+  </div>
+  
+
+
+  <div id="ordersContainer"></div>
+
+  <footer>
+    <p>&copy; 2024 Agrochain. All Rights Reserved.</p>
+  </footer>
+
+  <script>
+    const buyerId = sessionStorage.getItem('buyerId');
+    
+    // Function to show notifications
+    function showNotification(message) {
+      const notificationBar = document.getElementById('notification-bar');
+      const notificationMessage = document.getElementById('notification-message');
+      notificationMessage.textContent = message;
+      notificationBar.style.display = 'block';
+  
+      // Hide the notification after 5 seconds
+      setTimeout(() => {
+        notificationBar.style.display = 'none';
+      }, 5000);
+    }
+  
+    // Display login notification if user logs in
+    if (buyerId) {
+      showNotification(`Welcome, Buyer ID: ${buyerId}`);
+    }
+  
+    // Fetch orders
+    fetch(`/orders/${buyerId}`)
+      .then(response => response.json())
+      .then(orders => {
+        const ordersContainer = document.getElementById('ordersContainer');
+        ordersContainer.innerHTML = '';
+  
+        if (orders.length === 0) {
+          ordersContainer.innerHTML = `
+            <div style="text-align: center; padding: 30px; font-size: 1.2rem; font-weight:bold; color: red;">
+              No orders found
+            </div>`;
+          return;
+        }
+  
+        orders.forEach(order => {
+          const orderCard = document.createElement('div');
+          orderCard.classList.add('order-card');
+  
+          const isStatusNotCancellable = (
+            order.orderStatus === 'Order Rejected' || 
+            order.orderStatus === 'Delivered' || 
+            order.buyerStatus === 'Order Received' || 
+            order.buyerStatus === 'Cancelled' || 
+            order.buyerStatus === 'Rejected by Farmer'
+          );
+  
+          orderCard.innerHTML = `
+            <div class="order-details">
+              <div class="detail">
+                <label>Order ID</label>
+                <span class="order-id">${order.orderId}</span>
+              </div>
+              <div class="detail">
+                <label>Product Name</label>
+                <span class="product-name">${order.productName}</span>
+              </div>
+              <div class="detail">
+                <label>Quantity</label>
+                <span class="quantity">${order.quantity}</span>
+              </div>
+              <div class="detail">
+                <label>Price(per unit)</label>
+                <span class="price">${order.price}</span>
+              </div>
+              <div class="detail">
+                <label>Buyer ID</label>
+                <span class="buyer-id">${buyerId}</span>
+              </div>
+              <div class="detail">
+                <label>Buyer Name</label>
+                <span class="buyer-name">${order.buyerName}</span>
+              </div>
+              <div class="detail">
+                <label>Buyer Address</label>
+                <span class="buyer-address">${order.buyerAddress}</span>
+              </div>
+              <div class="detail">
+                <label>Order Date</label>
+                <span class="order-date">${order.orderDate}</span>
+              </div>
+              <div class="detail">
+                <label>Order Status</label>
+                <span class="order-status">${order.orderStatus}</span>
+              </div>
+              <div class="detail">
+                <label>Farmer ID</label>
+                <span class="farmer-id">${order.farmer_id}</span>
+              </div>
+              <div class="detail">
+                <label>Unique ID (Delivery Confirmation ID)</label>
+                <span class="unique-id">${order.uniqueId}</span>
+              </div>
+              <div class="detail">
+                <label>Buyer Status</label>
+                <span class="buyer-status">${order.buyerStatus}</span>
+              </div>
+              <div class="detail">
+                <label>Total Payable Amount</label>
+                <span class="buyer-status">${order.totalAmt}</span>
+              </div>
+            </div>
+  
+            <div class="order-actions">
+              <!-- Hide the cancel order button for certain statuses -->
+              <button onclick="cancelOrder(${order.orderId})" ${isStatusNotCancellable ? 'style="display:none"' : ''}>
+                <i class="fas fa-times-circle"></i> Cancel Order
+              </button>
+              <button onclick="printBill(${order.orderId})">
+                <i class="fas fa-print"></i> Print Bill
+              </button>
+            </div>
+          `;
+  
+          ordersContainer.appendChild(orderCard);
+  
+          // Show notification if orderStatus changes
+          if (order.orderStatus !== 'Delivered') {
+            showNotification(`Order ${order.orderId} status changed to: ${order.orderStatus}`);
+          }
+        });
+      });
+
+      function cancelOrder(orderId) {
+  if (confirm('Are you sure you want to cancel this order?')) {
+    fetch('/goodS', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderId, status: 'Order Cancelled by Buyer', buyerStatus: 'Cancelled' })
+    })
+      .then(response => response.json())
+      .then(data => {
+        alert(data.message);
+        fetchOrders(); // Refresh the order list
+      })
+      .catch(error => {
+        console.error('Error cancelling order:', error);
+        alert('Error cancelling order. Please try again.');
+      });
+  }
+}
+
+  
+    // function cancelOrder(orderId) {
+    //   if (confirm('Are you sure you want to cancel this order?')) {
+    //     fetch('/cancel-order', {
+    //       method: 'POST',
+    //       headers: { 'Content-Type': 'application/json' },
+    //       body: JSON.stringify({ orderId })
+    //     })
+    //     .then(response => response.json())
+    //     .then(data => {
+    //       alert(data.message);
+    //       location.reload();
+    //     });
+    //   }
+    // }
+
+    // When the backend updates the order status:
+function handleOrderStatusChange(orderId, newStatus) {
+  const message = `Order #${orderId} status changed to "${newStatus}"`;
+  addNotification(message);
+
+  // Store the time of the status change in your database (orderStatusTime)
+  // Example SQL:
+  // UPDATE orders SET orderStatusTime = NOW() WHERE orderId = orderId;
+}
+
+  
+function printBill(orderId) {
+  const orderCard = [...document.querySelectorAll('.order-card')].find(
+    card => card.querySelector('.order-id').textContent == orderId
+  );
+
+  if (!orderCard) {
+    alert("Order not found.");
+    return;
+  }
+
+  const productName = orderCard.querySelector('.product-name').textContent;
+  const quantity = parseInt(orderCard.querySelector('.quantity').textContent); // Convert quantity to an integer
+  const pricePerUnit = parseFloat(orderCard.querySelector('.price').textContent); // Correct selector for price
+
+  const buyerName = orderCard.querySelector('.buyer-name').textContent;
+  const buyerAddress = orderCard.querySelector('.buyer-address').textContent;
+  const orderDate = orderCard.querySelector('.order-date').textContent;
+  const orderStatus = orderCard.querySelector('.order-status').textContent;
+  const buyerId = orderCard.querySelector('.buyer-id').textContent;
+  const farmerId = orderCard.querySelector('.farmer-id').textContent;
+  const uniqueId = orderCard.querySelector('.unique-id').textContent;
+  const buyerStatus = orderCard.querySelector('.buyer-status').textContent;
+
+  const totalPrice = (pricePerUnit * quantity).toFixed(2);
+
+  // Create a new jsPDF instance
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  // Add Noto Sans font from your project directory
+  doc.addFont('NotoSans-Regular.ttf', 'NotoSans', 'normal');
+  doc.setFont('NotoSans'); // Set the font to Noto Sans
+
+  // Set the title
+  doc.setFont('NotoSans', 'bold');
+  doc.setFontSize(16);
+  const title = 'Agrochain Order Bill';
+  const titleWidth = doc.getStringUnitWidth(title) * doc.getFontSize() / doc.internal.scaleFactor;
+  const pageWidth = doc.internal.pageSize.width;
+  const xPos = (pageWidth - titleWidth) / 2;
+  doc.text(title, xPos, 20);
+
+  // Set the font for the rest of the content
+  doc.setFont('NotoSans', 'normal');
+  doc.setFontSize(12);
+
+  // Spacing for lines
+  let lineY = 40;
+  const lineSpacing = 10;
+
+  // Add the order details to the PDF
+  doc.text(`Order ID: ${orderId}`, 20, lineY);
+  doc.text(`Product Name: ${productName}`, 20, lineY += lineSpacing);
+  doc.text(`Quantity: ${quantity}`, 20, lineY += lineSpacing);
+
+  // Add price with rupee symbol
+  doc.text(`Price (per unit): ₹${pricePerUnit.toFixed(2)}`, 20, lineY += lineSpacing);
+
+  doc.text(`Buyer ID: ${buyerId}`, 20, lineY += lineSpacing);
+  doc.text(`Buyer Name: ${buyerName}`, 20, lineY += lineSpacing);
+  doc.text(`Buyer Address: ${buyerAddress}`, 20, lineY += lineSpacing);
+  doc.text(`Order Date: ${orderDate}`, 20, lineY += lineSpacing);
+  doc.text(`Order Status: ${orderStatus}`, 20, lineY += lineSpacing);
+  doc.text(`Farmer ID: ${farmerId}`, 20, lineY += lineSpacing);
+  doc.text(`Unique ID (Delivery Confirmation ID): ${uniqueId}`, 20, lineY += lineSpacing);
+  doc.text(`Buyer Status: ${buyerStatus}`, 20, lineY += lineSpacing);
+
+  // Add total amount with rupee symbol
+  doc.text(`Total Amount: ₹${totalPrice}`, 20, lineY += lineSpacing);
+
+  // Save the PDF
+  doc.save('Agrochain_Order_Bill.pdf');
+}
+
+  </script>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+</body>
+</html>

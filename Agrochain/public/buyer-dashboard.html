@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buyer Dashboard</title>
+  
+  <!-- Font Awesome for icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  
+  <style>
+  
+    /* General Styling */
+    body {
+      background-color: #fff;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+
+    header {
+      background-color: #27ae60;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      position: relative;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .logout-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background-color: #fff;
+      color: #27ae60;
+      border: 1px solid #27ae60;
+      padding: 5px 10px;
+      font-size: 14px;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: all 0.3s ease;
+    }
+
+    .logout-btn:hover {
+      background-color: #27ae60;
+      color: white;
+      transform: scale(1.1);
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 30px auto;
+      padding: 20px;
+    }
+
+    h2 {
+      font-size: 20px;
+      color: #333;
+    }
+
+    table {
+      width: 120%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      font-size: 16px;
+    }
+
+    table th, table td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 2px solid #ddd;
+    }
+
+    table th {
+      background-color: #27ae60;
+      color: white;
+    }
+
+    table td img {
+      width: 150px;
+      height: auto;
+      border-radius: 5px;
+    }
+
+    button {
+      background-color: #27ae60;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      cursor: pointer;
+      font-size: 14px;
+      border-radius: 5px;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #2ecc71;
+      transform: scale(1.05);
+    }
+
+    .cart-section {
+      background-color: #f5f5f5;
+      padding: 20px;
+      margin-top: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .cart-section h3 {
+      margin-top: 0;
+    }
+
+    .cart-section ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.cart-section li {
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between; /* Align item details and button */
+    align-items: center; /* Vertically align items */
+}
+
+.remove-btn {
+    background-color: #e74c3c;
+    color: white;
+    font-size: 12px;
+    border-radius: 3px;
+    padding: 8px 12px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.remove-btn:hover {
+    background-color: #c0392b;
+}
+
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+      overflow: auto;
+    }
+
+    .modal-content {
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      width: 60%;
+      max-height: 80%;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      overflow-y: auto;
+    }
+
+    .modal input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .modal button {
+      width: 48%;
+      margin: 10px 1%;
+      background-color: #27ae60;
+      border-radius: 5px;
+    }
+
+    .modal button:hover {
+      background-color: #2ecc71;
+    }
+
+    /* Responsive Styling */
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 20px;
+      }
+
+      .container {
+        padding: 10px;
+      }
+
+      button {
+        padding: 8px 12px;
+      }
+
+      table th, table td {
+        font-size: 14px;
+      }
+
+      .cart-section {
+        padding: 15px;
+      }
+    }
+    /* .notification-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background-color: #ffcc00;
+      
+      color:black;
+      padding: 10px;
+      text-align: center;
+      font-weight: bold;
+      display: none; /* Hidden initially */
+     
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Buyer Dashboard</h1>
+    <button class="logout-btn" onclick="window.location.href='landing.html'"><i class="fas fa-sign-out-alt"></i> Logout</button>
+  </header>
+  <div class="notification-bar" id="notificationBar"></div>
+  <div class="container">
+    <h2>Buyer ID: <span id="buyer-id"></span></h2>
+    
+    <button onclick="viewOrders()"><i class="fas fa-box"></i> View My Orders</button>
+
+    <h2>Available Products</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Farmer ID</th>
+          <th>Product ID</th>
+          <th>Product Name</th>
+          <th>Stock Availability (in kg)</th>
+          <th>Price</th>
+          <th>Description</th>
+          <th>Image</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="product-list"></tbody>
+    </table>
+
+    <!-- Cart Section -->
+    <div class="cart-section" id="cart-container">
+      <h3>Shopping Cart</h3>
+      <ul id="cart-items"></ul>
+      <p>Total: ₹<span id="total-price">0</span></p>
+      <button onclick="proceedToCheckout()"><i class="fas fa-credit-card"></i> Proceed to Checkout</button>
+    </div>
+
+    <!-- Checkout Details Table -->
+    <div id="checkout-container" style="display:none;">
+      <h3>Checkout Details</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Farmer ID</th>
+            <th>Product ID</th>
+            <th>Product Name</th>
+            <th>Quantity</th>
+            <th>Total Price</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="checkout-list"></tbody>
+      </table>
+    </div>
+
+    <!-- Modal for Buyer Details -->
+    <div id="buyerModal" class="modal">
+      <div class="modal-content">
+        <h3>Enter Buyer Details</h3>
+        <form id="buyerDetailsForm">
+          <label for="buyerId">Buyer ID:</label>
+          <input type="text" id="buyerId" readonly><br>
+          <label for="productId">Product ID:</label>
+          <input type="text" id="productId" readonly><br>
+          <label for="productName">Product Name:</label>
+          <input type="text" id="productName" readonly><br>
+          <label for="quantity">Quantity:</label>
+          <input type="number" id="quantity" readonly><br>
+          <label for="price">Price:</label>
+          <input type="text" id="price" readonly><br>
+          <label for="farmerId">Farmer ID:</label>
+          <input type="text" id="farmerId" readonly><br>
+          <label for="buyerName">Name:</label>
+          <input type="text" id="buyerName" required><br>
+          <label for="buyerAddress">Full Address:</label>
+          <input type="text" id="buyerAddress" required><br>
+          <label for="buyerContact">Contact:</label>
+          <input type="number" id="buyerContact" required><br>
+          <label for="buyerAlternateContact">Alternate Contact: (Optional)</label>
+          <input type="number" id="buyerAlternateContact"><br>
+          <label for="buyerEmail">Email:</label>
+          <input type="email" id="buyerEmail" required><br>
+          <label for="buyerAccount">Blockchain Account:</label>
+          <input type="text" id="buyerAccount" name="buyerAccount" required placeholder="Enter Your Blockchain Account Address">
+          <button type="button" onclick="confirmFinalOrder()"><i class="fas fa-check"></i> Confirm Order</button>
+          <button type="button" onclick="closeModal()"><i class="fas fa-times"></i> Cancel</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script>
+    const productList = document.getElementById("product-list");
+    const cartItemsList = document.getElementById("cart-items");
+    const checkoutList = document.getElementById("checkout-list");
+    const totalPriceSpan = document.getElementById("total-price");
+    const buyerIdSpan = document.getElementById("buyer-id");
+
+    let cart = [];
+    async function fetchProducts() {
+  const buyerId = sessionStorage.getItem('buyerId');
+  if (buyerId) {
+    buyerIdSpan.textContent = buyerId;
+  } else {
+    alert('Buyer ID not found. Please log in.');
+    return;
+  }
+
+  const response = await fetch(`http://localhost:3000/products?buyerId=${buyerId}`);
+  const products = await response.json();
+
+  productList.innerHTML = "";
+  products.forEach((product) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${product.farmer_id}</td>
+      <td>${product.pId}</td>
+      <td>${product.name}</td>
+      <td>${product.available_quantity} kg</td>
+      <td>${product.price}</td>
+      <td>${product.description}</td>
+      <td><img src="http://localhost:3000/uploads/${product.image}" alt="${product.name}" width="100"></td>
+      <td>
+  <select id="quantity-${product.pId}">
+    ${Array.from({ length: product.available_quantity }, (_, i) => `<option value="${i + 1}">${i + 1}</option>`).join('')}
+  </select>
+  <button onclick="addToCart(${product.pId}, '${product.name}', ${product.price}, ${product.farmer_id}, ${product.available_quantity})">
+    Add to Cart
+  </button>
+</td>
+`;
+    productList.appendChild(row);
+  });
+}
+function addToCart(productId, productName, price, farmerId, availableQuantity) {
+  const selectedQuantity = parseInt(document.getElementById(`quantity-${productId}`).value, 10);
+
+  // Check if the product is already in the cart
+  const existingProduct = cart.find(item => item.productId === productId);
+
+  if (existingProduct) {
+    // Update the quantity for the existing product
+    if (selectedQuantity <= availableQuantity) {
+      existingProduct.quantity = selectedQuantity; // Update with new quantity
+    } else {
+      alert(`Only ${availableQuantity} kg available in stock.`);
+      return;
+    }
+  } else {
+    // Add new product to the cart
+    cart.push({ productId, productName, price, farmerId, quantity: selectedQuantity, availableQuantity });
+  }
+
+  updateCart();
+}
+    function removeFromCart(productId) {
+      cart = cart.filter(item => item.productId !== productId);
+      updateCart();
+    }
+
+    function updateCart() {
+  cartItemsList.innerHTML = "";
+  let totalPrice = 0;
+  cart.forEach(item => {
+    totalPrice += item.price * item.quantity;
+    const li = document.createElement("li");
+    li.innerHTML = `${item.productName} (x${item.quantity}) - ₹${item.price * item.quantity} 
+      <button class="remove-btn" onclick="removeFromCart(${item.productId})">Remove</button>`;
+    cartItemsList.appendChild(li);
+  });
+  totalPriceSpan.textContent = totalPrice;
+}
+
+function proceedToCheckout() {
+  cart.forEach(item => {
+    sessionStorage.setItem("productId", item.productId);  // Store productId
+    sessionStorage.setItem("productName", item.productName);  // Store productName
+    sessionStorage.setItem("quantity", item.quantity);  // Store quantity
+    sessionStorage.setItem("price", item.price);  // Store price
+    sessionStorage.setItem("farmerId", item.farmerId);  // Store farmerId
+  });
+
+  document.getElementById("checkout-container").style.display = "block";
+  checkoutList.innerHTML = "";
+  cart.forEach(item => {
+    let totalPrice = item.price * item.quantity;
+    let discount = 0;
+
+    // Apply 10% discount if quantity > 20 kg
+    if (item.quantity > 20) {
+      discount = totalPrice * 0.1;
+      totalPrice -= discount;
+    }
+
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${item.farmerId}</td>
+      <td>${item.productId}</td>
+      <td>${item.productName}</td>
+      <td>${item.quantity}</td>
+      <td>₹${totalPrice} (${discount > 0 ? `Discount: ₹${discount}` : "No Discount"})</td>
+      <td><button onclick="openModal()">Confirm Order</button> <button onclick="cancelO(${item.productId})">Cancel Order</button></td>
+    `;
+    checkoutList.appendChild(row);
+  });
+}
+
+// Function to cancel the order (remove the item from both the cart and checkout)
+function cancelO(productId) {
+  // Remove the item from the cart
+  cart = cart.filter(item => item.productId !== productId);
+  // Update the cart display
+  updateCart();
+  
+  // Remove the item from the checkout list
+  const rows = checkoutList.querySelectorAll("tr");
+  rows.forEach(row => {
+    const productIdCell = row.querySelector("td:nth-child(2)");
+    if (productIdCell && productIdCell.textContent == productId) {
+      row.remove();
+    }
+  });
+}
+    function openModal() {
+      // Populate the modal with data from sessionStorage
+      document.getElementById("buyerId").value = sessionStorage.getItem("buyerId");
+      document.getElementById("productId").value = sessionStorage.getItem("productId");
+      document.getElementById("productName").value = sessionStorage.getItem("productName");
+      document.getElementById("quantity").value = sessionStorage.getItem("quantity");
+      document.getElementById("price").value = sessionStorage.getItem("price");
+      document.getElementById("farmerId").value = sessionStorage.getItem("farmerId");
+
+      document.getElementById("buyerModal").style.display = "block";
+      
+    }
+
+    function closeModal() {
+      document.getElementById("buyerModal").style.display = "none";
+    }
+    function confirmFinalOrder() {
+  const productId = sessionStorage.getItem("productId");
+  const productName = sessionStorage.getItem("productName");
+  const quantity = parseInt(sessionStorage.getItem("quantity"), 10);
+  const price = parseFloat(sessionStorage.getItem("price"));
+  const farmerId = sessionStorage.getItem("farmerId");
+  const buyerId = sessionStorage.getItem("buyerId");
+  const buyerName = document.getElementById("buyerName").value;
+  const buyerAddress = document.getElementById("buyerAddress").value;
+  const buyerContact = document.getElementById("buyerContact").value;
+  const buyerAlternateContact = document.getElementById("buyerAlternateContact").value;
+  const buyerEmail = document.getElementById("buyerEmail").value;
+  const buyerAccount = document.getElementById("buyerAccount").value;
+
+  // Calculate total price and apply discount if quantity > 20 kg
+  let totalPrice = price * quantity;
+  let discount = 0;
+  if (quantity > 20) {
+    discount = totalPrice * 0.1;
+    totalPrice -= discount;
+  }
+
+  const orderDetails = {
+    buyerId,
+    productId,
+    productName,
+    quantity,
+    price: totalPrice, // Total price after discount
+    farmerId,
+    buyerName,
+    buyerAddress,
+    buyerContact,
+    buyerAlternateContact,
+    buyerEmail,
+    buyerAccount,
+    discount: discount // Add discount detail to order
+  };
+
+  fetch('http://localhost:3000/placeOrder', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(orderDetails)
+  })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert(data.message); // Show the message from the backend
+        
+        cart = cart.filter(item => item.productId !== parseInt(productId, 10));
+        updateCart();
+
+        const rows = checkoutList.querySelectorAll("tr");
+        rows.forEach(row => {
+          const productIdCell = row.querySelector("td:nth-child(2)");
+          if (productIdCell && productIdCell.textContent == productId) {
+            row.remove();
+          }
+        });
+
+        closeModal(); // Close the modal
+      } else {
+        alert('Error placing order');
+      }
+    })
+    .catch(error => console.error('Error confirming order:', error));
+}
+
+function viewOrders(){
+  window.location.href = "orderUI.html";
+}
+
+
+const buyerId = sessionStorage.getItem('buyerId');
+    if (buyerId) {
+      document.getElementById('buyer-id').textContent = buyerId;
+    }
+    function viewOrders() {
+      window.location.href = "orderUI.html";
+    }
+    // Fetch products when page loads
+    fetchProducts();
+  </script>
+</body>
+</html>
+
+
+  

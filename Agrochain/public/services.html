@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroChain - Our Services</title>
+    <style>
+        /* Basic Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        header {
+            text-align: center;
+            padding: 2rem 1rem;
+            background: #333;
+            color: white;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .services-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 2rem;
+            gap: 2rem;
+        }
+
+        .service-card {
+            background: white;
+            width: 300px;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .service-icon {
+            font-size: 4rem;
+            color: #27ae60;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .service-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .service-description {
+            font-size: 1rem;
+            color: #666;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        /* Call to Action */
+        .cta-section {
+            text-align: center;
+            padding: 3rem 1rem;
+            background: #27ae60;
+            color: white;
+            animation: fadeInUp 1.5s ease-in-out;
+        }
+
+        .cta-section h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .cta-section p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        .cta-button {
+            background: white;
+            color: #27ae60;
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .cta-button:hover {
+            background: #f0f0f0;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 1rem;
+            background: #333;
+            color: white;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header>
+        <h1>Our Services</h1>
+        <p>Empowering Farmers and Connecting Consumers through Innovation</p>
+    </header>
+
+    <!-- Services Section -->
+    <div class="services-container">
+        <!-- Service Card 1 -->
+        <div class="service-card">
+            <div class="service-icon">🌾</div>
+            <div class="service-title">Seamless Product Upload</div>
+            <div class="service-description">
+                Effortlessly showcase your products with detailed information and captivating images, connecting directly with buyers in need of fresh produce.
+            </div>
+        </div>
+
+        <!-- Service Card 2 -->
+        <div class="service-card">
+            <div class="service-icon">🛒</div>
+            <div class="service-title">Streamlined Purchases</div>
+            <div class="service-description">
+                A smooth and intuitive purchasing experience designed for buyers to explore, add products to their cart, and place orders with ease.
+            </div>
+        </div>
+
+        <!-- Service Card 3 -->
+        <div class="service-card">
+            <div class="service-icon">💳</div>
+            <div class="service-title">Secure Transactions</div>
+            <div class="service-description">
+                Payments are done only after successful delivery, ensuring trust and transparency for both farmers and buyers.
+            </div>
+        </div>
+
+        <!-- Service Card 4 -->
+        <div class="service-card">
+            <div class="service-icon">🚚</div>
+            <div class="service-title">Reliable Delivery</div>
+            <div class="service-description">
+                Track your orders in real-time and ensure product authenticity through Unique ID based delivery confirmations.
+            </div>
+        </div>
+    </div>
+
+    <!-- Call to Action -->
+    <div class="cta-section">
+        <h2>Join AgroChain Today</h2>
+        <p>Experience a new era of agricultural commerce with transparency, trust, and innovation.</p>
+        <button class="cta-button" onclick="redirectToHome()">Get Started</button>    </div>
+
+    <!-- Footer -->
+    <footer>
+        &copy; 2024 AgroChain. All rights reserved.
+    </footer>
+
+    <script>
+        // Scroll to contact section (if any in future)
+        function redirectToHome() {
+            window.location.href = 'home.html'; // Redirect to home.html
+        }
+    </script>
+
+</body>
+
+</html>

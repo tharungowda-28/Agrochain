@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home - AgroChain</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+  <style>
+    /* Global Styles */
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: white; /* Set background color to white */
+      color: black;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      text-align: center;
+      animation: fadeIn 1s ease-in;
+    }
+  
+    /* Header Styles */
+    header {
+      font-size: 3em;
+      font-weight: 600;
+      margin-bottom: 40px;
+      color: #27ae60; /* Green color */
+      text-shadow: none; /* Removed text shadow */
+    }
+  
+    /* Navigation Bar Styles */
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+    }
+  
+    nav a {
+      text-decoration: none;
+      color: white;
+      font-size: 1.2em;
+      padding: 15px 30px;
+      border-radius: 5px;
+      background-color: #27ae60; /* Green background */
+      transition: background-color 0.3s ease, transform 0.3s ease;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: 500;
+    }
+  
+    nav a i {
+      margin-right: 8px;
+    }
+  
+    nav a:hover {
+      background-color: #2ecc71; /* Lighter green on hover */
+      color: white;
+      transform: translateY(-5px);
+    }
+  
+    nav a:hover i {
+      color: white;
+    }
+  
+    /* Footer Styles */
+    footer {
+      position: fixed;
+      bottom: 10px;
+      width: 100%;
+      text-align: center;
+      font-size: 0.9em;
+      color: white;
+      background-color: black;
+      padding: 10px;
+    }
+  
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+    }
+  
+    .modal-content {
+      background: white;
+      color: black;
+      padding: 30px;
+      border-radius: 10px;
+      text-align: center;
+      width: 80%;
+      max-width: 400px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      animation: modalFadeIn 0.3s ease-in;
+    }
+  
+    .modal-content h2 {
+      margin-bottom: 20px;
+      font-size: 1.8em;
+      color: #27ae60; /* Green color */
+    }
+  
+    .modal-content button {
+      margin: 10px;
+      padding: 12px 30px;
+      background-color: #27ae60; /* Green background */
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 1.2em;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+  
+    .modal-content button:hover {
+      background-color: #2ecc71; /* Lighter green for button hover */
+    }
+  
+    .close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 1.5em;
+      cursor: pointer;
+      color: #333;
+    }
+  
+    /* Animations */
+    @keyframes fadeIn {
+      0% {
+        opacity: 0;
+      }
+  
+      100% {
+        opacity: 1;
+      }
+    }
+  
+    @keyframes modalFadeIn {
+      0% {
+        opacity: 0;
+        transform: translateY(-50px);
+      }
+  
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+  
+  
+</head>
+
+<body>
+  <div>
+    <header style="color: black;">Welcome to AgroChain</header>
+    <nav>
+      <a href="login.html" style="color:white;"><i class="fas fa-sign-in-alt"></i>Login</a>
+      <a href="#" id="register-link" style="color:white;"><i class="fas fa-user-plus"></i>Register</a>
+    </nav>
+
+    <!-- Call to Action Section -->
+    <div class="cta-section">
+      <h2>Join the AgroChain Community</h2>
+      <p>We are paving the way for a transparent and efficient agricultural supply chain. Get involved today and be a part of the change!</p>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal" id="register-modal">
+    <div class="modal-content">
+      <span class="close" id="close-modal">&times;</span>
+      <h2>Select Registration Type</h2>
+      <button onclick="window.location.href='farmer.html'">Farmer</button>
+      <button onclick="window.location.href='buyer.html'">Buyer</button>
+    </div>
+  </div>
+
+  <footer>&copy; 2024 AgroChain | All Rights Reserved</footer>
+
+  <script>
+    const modal = document.getElementById("register-modal");
+    const registerLink = document.getElementById("register-link");
+    const closeModal = document.getElementById("close-modal");
+
+    // Show the modal when "Register" is clicked
+    registerLink.onclick = () => {
+      modal.style.display = "flex";
+    };
+
+    // Close the modal
+    closeModal.onclick = () => {
+      modal.style.display = "none";
+    };
+
+    // Close modal on outside click
+    window.onclick = (event) => {
+      if (event.target === modal) {
+        modal.style.display = "none";
+      }
+    };
+  </script>
+</body>
+
+</html>

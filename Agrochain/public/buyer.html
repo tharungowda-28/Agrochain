@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buyer Registration</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+  <style>
+    /* Global Styles */
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: white;
+      color: black;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height:100vh;
+      overflow: hidden;
+    }
+
+    /* Container Styles */
+    .container {
+      width: 100%;
+      max-width: 600px;
+      background-color: #fff;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+      font-size: 2em;
+      color: #27ae60;
+      margin-bottom: 30px;
+    }
+
+    label {
+      font-weight: 500;
+      font-size: 1.1em;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      font-size: 1em;
+      outline: none;
+      transition: border-color 0.3s ease;
+    }
+
+    input:focus, textarea:focus {
+      border-color: #27ae60;
+    }
+
+    .button {
+      width: 100%;
+      padding: 12px;
+      background-color: #27ae60;
+      color: white;
+      font-size: 1.2em;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .button:hover {
+      background-color: #2ecc71;
+    }
+
+    /* Footer Styles */
+    footer {
+      position: absolute;
+      bottom: 10px;
+      width: 100%;
+      text-align: center;
+      font-size: 0.9em;
+      color: #333;
+      background-color: #f2f2f2;
+      padding: 10px;
+    }
+
+    footer a {
+      text-decoration: none;
+      color: #27ae60;
+      font-weight: 500;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Suggested Password Section */
+    #suggested-password-container {
+      margin-top: 10px;
+      font-size: 1em;
+      color: #333;
+      display: none; /* Initially hide the suggested password */
+    }
+
+    #suggested-password {
+      font-weight: bold;
+      color: #2c3e50;
+
+    }
+    #use-suggested-password{
+      border:1px solid black;
+      background-color: white;
+      color:black;
+      width:300px;
+      margin:10px;
+      font-size: 0.9em;
+      height:40px;
+    }
+    .misba{
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2><i class="fas fa-user"></i> Buyer Registration</h2>
+    <form onsubmit="submitForm(event)">
+      <label for="id"><i class="fas fa-id-badge"></i> Buyer ID (Unique):</label>
+      <input type="number" id="id" name="id" required min="1">
+
+      <label for="name"><i class="fas fa-user"></i> Name:</label>
+      <input type="text" id="name" name="name" required>
+
+      <label for="email"><i class="fas fa-envelope"></i> Email:</label>
+      <input type="email" id="email" name="email" required>
+
+     
+      <label for="contact"><i class="fas fa-phone-alt"></i> Contact Number:</label>
+      <input type="text" id="contact" name="contact" required pattern="^\d{10}$" title="Please enter a valid 10-digit phone number" maxlength="10" minlength="10" oninput="this.value=this.value.replace(/[^0-9]/g, '')">
+      
+      <label for="password"><i class="fas fa-lock"></i> Password:</label>
+      <input type="password" id="password" name="password" required pattern="^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$" title="Password must be at least 8 characters long, with 1 uppercase letter, 1 digit, and 1 special character.">
+
+      <div id="suggested-password-container">
+        <label for="suggested-password"><i class="fas fa-lightbulb"></i> Suggested Password:</label>
+        <br>
+        <p id="suggested-password" class="misba">Loading...</p>
+        <button type="button" id="use-suggested-password" class="button misba">Use Suggested Password</button>
+      </div>
+
+      <button class="button" type="submit"><i class="fas fa-check-circle"></i> Register</button>
+    </form>
+  </div>
+  <footer>
+    <p>Already have an account? <a href="login.html">Login here</a></p>
+  </footer>
+
+
+  <script>
+    // Generate a suggested password function
+    function generateSuggestedPassword(length = 12) {
+      const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+';
+      let password = '';
+      for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * characters.length);
+        password += characters[randomIndex];
+      }
+      return password;
+    }
+
+    // Display the suggested password
+    const suggestedPassword = generateSuggestedPassword();
+
+    // Event listener to show suggested password when the user focuses on the password field
+    const passwordField = document.getElementById('password');
+    const suggestedPasswordContainer = document.getElementById('suggested-password-container');
+    const suggestedPasswordText = document.getElementById('suggested-password');
+
+    passwordField.addEventListener('focus', function() {
+      suggestedPasswordText.textContent = suggestedPassword;
+      suggestedPasswordContainer.style.display = 'block';
+    });
+
+    // Set the password field to the suggested password when the button is clicked
+document.getElementById('use-suggested-password').addEventListener('click', function() {
+  // Temporarily remove the pattern validation
+  const passwordField = document.getElementById('password');
+  const originalPattern = passwordField.getAttribute('pattern'); // Store the original pattern
+  passwordField.removeAttribute('pattern');
+
+  // Set the suggested password
+  passwordField.value = suggestedPassword;
+
+  // Optionally, restore the pattern validation if required (uncomment the line below if you want to restore it)
+  // passwordField.setAttribute('pattern', originalPattern);
+});
+
+
+    async function submitForm(event) {
+      event.preventDefault(); // Prevent default form submission
+      const formData = {
+        id: document.getElementById('id').value,
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        contact: document.getElementById('contact').value,
+        password: document.getElementById('password').value
+      };
+
+      try {
+        const response = await fetch('http://localhost:3000/register/buyer', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+    alert('Registration Successful');
+    window.location.href = 'landing.html'; // Redirect to landing page
+  } else {
+    // If the response is not OK, extract the error message from the response body
+    const errorData = await response.text();  // Assuming the backend sends the error message as plain text
+    alert(errorData || 'Error in registration');  // Show error message or default message
+  }
+} catch (error) {
+  console.error('Error:', error);
+  alert('Error in registration');  // Default message in case of network errors or other issues
+}
+
+    }
+  </script>
+</body>
+</html>

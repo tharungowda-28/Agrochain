@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>View Orders</title>
+  <!-- Add a link to Font Awesome for icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f4f4f4;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      animation: fadeIn 2s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    header {
+      background-color: #27ae60;
+      color: white;
+      width: 100%;
+      padding: 20px;
+      text-align: center;
+      font-size: 24px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 10;
+    }
+
+    header h1 {
+      margin: 0;
+    }
+
+    .container {
+      margin-top: 110px;
+      padding: 100px;
+      width: 80%;
+      max-width: 1200px;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      animation: slideIn 2s ease-in-out;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(-100%); }
+      to { transform: translateX(0); }
+    }
+
+    h2 {
+      color: #27ae60;
+      font-size: 2em;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    table, th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #27ae60;
+      color: white;
+    }
+
+    td {
+      background-color: #f9f9f9;
+    }
+
+    .btn {
+      background-color: #27ae60;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 12px;
+      border-radius: 5px;
+      transition: background-color 0.3s ease-in-out;
+    }
+
+    .btn:hover {
+      background-color: #2ecc71;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    .modal-content {
+      background-color: white;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 50%;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>View Orders</h1>
+  </header>
+
+  <div class="container">
+    <h2>Orders for Farmer ID: <span id="farmer-id"></span></h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Product ID</th>
+          <th>Product Name</th>
+          <th>Quantity</th>
+          <th>Price</th>
+          <th>Total Amount</th>
+          <th>Buyer ID</th>
+          <th>Buyer Name</th>
+          <th>Buyer Address</th>
+          <th>Buyer Contact</th>
+          <th>Alternate Contact</th>
+          <th>Buyer Email</th>
+          <th>Order Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="order-list"></tbody>
+    </table>
+  </div>
+
+  <!-- Modal for Unique ID verification -->
+  <div id="uniqueIdModal" class="modal">
+    <div class="modal-content">
+      <h3>Enter Unique ID</h3>
+      <label for="uniqueIdInput">Unique ID:</label>
+      <input type="text" id="uniqueIdInput" placeholder="Enter Unique ID">
+      <button onclick="verifyUniqueId()">Submit</button>
+      <button onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+  <tbody id="order-list"></tbody>
+</table>
+</div>
+
+<script>
+  const farmerId = sessionStorage.getItem("farmerId");
+  document.getElementById("farmer-id").textContent = farmerId;
+
+  const orderList = document.getElementById("order-list");
+  let currentOrderId = null;
+
+  async function fetchOrders() {
+    if (!farmerId) {
+      alert("Farmer ID is missing. Please log in again.");
+      return;
+    }
+
+    const response = await fetch(`http://localhost:3000/goOrders?farmerId=${farmerId}`);
+    const orders = await response.json();
+
+    orderList.innerHTML = ""; // Clear previous entries
+    orders.forEach((order) => {
+      const row = document.createElement("tr");
+
+      row.innerHTML = `
+        <td>${order.orderId}</td>
+        <td>${order.productId}</td>
+        <td>${order.productName}</td>
+        <td>${order.quantity}</td>
+        <td>${order.price}</td>
+        <td>${order.totalAmt}</td>
+        <td>${order.buyerId}</td>
+        <td>${order.buyerName}</td>
+        <td>${order.buyerAddress}</td>
+        <td>${order.buyerContact}</td>
+        <td>${order.buyerAlternateContact}</td>
+        <td>${order.buyerEmail}</td>
+        <td>${order.orderStatus}</td>
+        <td id="action-${order.orderId}">
+          ${generateActionButtons(order)}
+        </td>
+      `;
+      orderList.appendChild(row);
+    });
+  }
+
+  function generateActionButtons(order) {
+  if (order.orderStatus === "Order Cancelled by Buyer") {
+    return `<span style="color: red; font-weight: bold;">Order Cancelled by Buyer</span>`;
+  }
+
+  switch (order.orderStatus) {
+    case "Wait for Farmer's Approval":
+      return `
+        <button onclick="updateOrderStatus(${order.orderId}, 'Order Accepted')">Accept Order</button>
+        <button onclick="rejectOrder(${order.orderId})">Reject Order</button>
+      `;
+    case "Order Accepted":
+      return `<button onclick="updateOrderStatus(${order.orderId}, 'Ready for Shipment')">Ready for Shipment</button>`;
+    case "Ready for Shipment":
+      return `<button onclick="updateOrderStatus(${order.orderId}, 'Delivery on the way')">Out for Delivery</button>`;
+    case "Delivery on the way":
+      return `<button onclick="showUniqueIdModal(${order.orderId})">Reached Destination</button>`;
+    case "Delivered":
+      return "Delivered";
+    default:
+      return "Order Cancelled";
+  }
+}
+
+
+async function updateOrderStatus(orderId, status, buyerStatus = "") {
+  await fetch(`http://localhost:3000/stausOf`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ orderId, status, buyerStatus }),
+  });
+  fetchOrders(); // Refresh the order list
+}
+function rejectOrder(orderId) {
+  document.getElementById(`action-${orderId}`).innerHTML = "Order Rejected by Farmer";
+  
+  // Call updateOrderStatus with buyerStatus set to "Rejected by Farmer"
+  goodS(orderId, "Order Rejected", "Rejected by Farmer");
+}
+async function goodS(orderId, status, buyerStatus = "") {
+  await fetch(`http://localhost:3000/goodS`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ orderId, status, buyerStatus }),
+  });
+  fetchOrders(); // Refresh the order list
+}
+
+
+
+async function updateOrderStatus(orderId, status, buyerStatus = "") {
+  await fetch(`http://localhost:3000/stausOf`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ orderId, status, buyerStatus }),
+  });
+  fetchOrders(); // Refresh the order list
+}
+
+
+
+  function showUniqueIdModal(orderId) {
+    currentOrderId = orderId;
+    document.getElementById("uniqueIdModal").style.display = "block";
+  }
+
+  function closeModal() {
+    document.getElementById("uniqueIdModal").style.display = "none";
+  }
+
+  async function verifyUniqueId() {
+  const uniqueIdInput = document.getElementById("uniqueIdInput").value;
+
+  // Sending a POST request to verify the unique ID
+  const response = await fetch('http://localhost:3000/uniqueid-verify', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      orderId: currentOrderId,  // Pass the current orderId
+      uniqueId: uniqueIdInput,
+    }),
+  });
+
+  const result = await response.json();
+
+  if (result.success) {
+    // Alert that the order has been delivered successfully
+    alert('Order Delivered Successfully');
+    
+    // Payment processing after successful unique ID verification
+    await processPayment(result.totalAmount);
+    
+    closeModal();  // Close the modal after successful payment
+    fetchOrders();  // Refresh the orders to show the updated status
+  } else {
+    alert('Incorrect Unique ID. Please try again.');
+  }
+}
+async function processPayment(totalAmount) {
+  try {
+    // Ensure totalAmount is a valid number
+    const totalAmountFloat = parseFloat(totalAmount);
+    if (isNaN(totalAmountFloat)) {
+      console.error('Invalid totalAmount:', totalAmount);
+      return { success: false, message: 'Invalid totalAmount' };
+    }
+
+    // Convert rupees to Ether (adjust conversion factor as needed)
+    const rupeesToEtherRate = 340000; // Example conversion rate (you need to adjust it based on your rate)
+    const amountInEther = totalAmountFloat / rupeesToEtherRate;
+    const amountInWei = web3.utils.toWei(amountInEther.toString(), 'ether');  // Convert to Wei
+
+    // Log the value in Wei for debugging
+    console.log('Sending amount (in Wei):', amountInWei);
+
+    // Send the payment transaction
+    const receipt = await paymentContract.methods.makePayment().send({
+      from: buyerAccount,
+      value: amountInWei,
+    });
+
+    console.log('Payment successful from buyer to farmer:', receipt);
+    return { success: true };
+  } catch (error) {
+    console.error('Error during payment processing:', error);
+    return { success: false, message: error.message };
+  }
+}
+
+// When the backend updates the order status:
+function handleOrderStatusChange(orderId, newStatus) {
+  const message = `Order #${orderId} status changed to "${newStatus}"`;
+  addNotification(message);
+
+  // Store the time of the status change in your database (orderStatusTime)
+  // Example SQL:
+  // UPDATE orders SET orderStatusTime = NOW() WHERE orderId = orderId;
+}
+
+  
+
+  fetchOrders();
+</script>
+
+</body>
+</html>

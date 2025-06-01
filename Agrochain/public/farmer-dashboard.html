@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Farmer Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      color: #333;
+      position: relative;
+    }
+
+    header {
+      background-color: #27ae60;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      font-size: 1.8rem;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .container {
+      background-color: white;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px auto;
+      width: 80%;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    h2, h3 {
+      color: #27ae60;
+      text-align: center;
+    }
+
+    form {
+      display: grid;
+      gap: 15px;
+    }
+
+    label {
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    input[type="text"], input[type="file"], input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    button {
+      background-color: #27ae60;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #219150;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    table th, table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    table th {
+      background-color: #27ae60;
+      color: white;
+    }
+
+    table td img {
+      width: 150px;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    /* Animations */
+    .fade-in {
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    /* Container for the buttons */
+    .buttons-container {
+      position: fixed;
+      top: 5px;
+      display: flex;
+      width: 100%;
+      justify-content: space-between; /* Space out buttons */
+      padding: 0 20px;
+    }
+
+    .logout-btn, .view-orders-btn {
+      background-color: white;
+      color: #27ae60;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      width: 150px; /* Set width to ensure uniformity */
+    }
+
+    .logout-btn:hover, .view-orders-btn:hover {
+      background-color: #c0392b;
+    }
+  </style>
+</head>
+<body>
+  <!-- Logout and View Orders Buttons -->
+  <div class="buttons-container">
+    <button class="view-orders-btn" onclick="viewOrders()"><i class="fas fa-box"></i> View Orders</button>
+    <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+  </div>
+
+  <header>Farmer Dashboard</header>
+  <div class="container">
+    <h2><i class="fas fa-upload"></i> Upload Product</h2>
+    <form id="product-form" enctype="multipart/form-data">
+      <label for="name"><i class="fas fa-tag"></i> Product Name:</label>
+      <input type="text" id="name" name="name" required>
+
+      <label for="price"><i class="fas fa-dollar-sign"></i> Price (Per kg):</label>
+      <input type="text" id="price" name="price" required>
+
+      <label for="description"><i class="fas fa-info-circle"></i> Description:</label>
+      <input type="text" id="description" name="description" required>
+
+      <label for="image"><i class="fas fa-image"></i> Product Image:</label>
+      <input type="file" id="image" name="image" required>
+      <label for="available_quantity"><i class="fas fa-cogs"></i>Stock Quantity (in kg):</label>
+<input type="number" id="available_quantity" name="available_quantity" required>
+
+
+      <label for="id"><i class="fas fa-user"></i> Farmer ID:</label>
+      <input type="number" id="id" name="id" readonly>
+
+      <button class="button" type="submit"><i class="fas fa-cloud-upload-alt"></i> Upload Product</button>
+    </form>
+
+    <h3><i class="fas fa-list"></i> Uploaded Products</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Product ID</th>
+          <th>Product Name</th>
+          <th>Price</th>
+          <th>Description</th>
+          <th>Image</th>
+          <th>Stock Quantity</th>
+          <th>Date of Upload</th>
+        </tr>
+      </thead>
+      <tbody id="product-list"></tbody>
+    </table>
+  </div>
+
+  <script>
+    // Fetch the stored Farmer ID from sessionStorage
+    const farmerId = sessionStorage.getItem('farmerId');
+    document.getElementById('id').value = farmerId;
+
+    const productForm = document.getElementById("product-form");
+    const productList = document.getElementById("product-list");
+
+    productForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const formData = new FormData(productForm);
+
+      const response = await fetch("http://localhost:3000/add-product", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        alert("Product uploaded successfully!");
+        productForm.reset();
+        fetchProducts();
+      }
+    });
+
+    async function fetchProducts() {
+      const farmerId = sessionStorage.getItem('farmerId');
+
+      if (!farmerId) {
+        alert("Farmer ID is missing. Please log in again.");
+        return;
+      }
+
+      const response = await fetch(`http://localhost:3000/products?farmerId=${farmerId}`);
+      const products = await response.json();
+
+      productList.innerHTML = "";
+      products.forEach((product) => {
+        const row = document.createElement("tr");
+        row.classList.add('fade-in');
+
+        const imageUrl = `http://localhost:3000/uploads/${product.image}`;
+        const dateOfUpload = new Date(product.date_of_upload).toLocaleString();
+
+        row.innerHTML = `
+          <td>${product.pId}</td>
+          <td>${product.name}</td>
+          <td>${product.price}</td>
+          <td>${product.description}</td>
+          <td><img src="${imageUrl}" alt="Product Image"></td>
+          <td>${product.available_quantity}</td>
+          <td>${dateOfUpload}</td>
+        `;
+        productList.appendChild(row);
+      });
+    }
+
+    // Fetch products on page load
+    window.onload = fetchProducts;
+
+    // Logout function
+    function logout() {
+      sessionStorage.removeItem('farmerId');
+      window.location.href = "landing.html"; // Redirect to landing page
+    }
+
+    // View Orders function
+    function viewOrders() {
+      window.location.href = "view_orders.html"; // Redirect to View Orders page
+    }
+  </script>
+</body>
+</html>

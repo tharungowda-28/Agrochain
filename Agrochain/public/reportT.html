@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agrochain Platform Report</title>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* General Styles */
+    body {
+      font-family: 'Open Sans', sans-serif;
+      background-color: #f4f4f4;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      font-family: 'Poppins', sans-serif;
+      color: #27ae60;
+      margin-top: 20px;
+    }
+
+    /* Container for sections */
+    .container {
+      width: 90%;
+      max-width: 1200px;
+      margin: 20px 0;
+      padding: 20px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Section Styles */
+    .section-title {
+      font-size: 1.5rem;
+      color: #27ae60;
+      margin-bottom: 10px;
+    }
+
+    .section-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
+    .card {
+      background-color: #f9f9f9;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      width: 45%;
+      transition: transform 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+    }
+
+    .card img {
+      border-radius: 5px;
+      max-width: 100px;
+      margin-right: 15px;
+    }
+
+    /* Product & Order Details */
+    .product img {
+      max-width: 100px;
+    }
+
+    .product-info {
+      font-size: 14px;
+      color: #555;
+    }
+
+    /* Button Styles */
+    #print-report {
+      background-color: #27ae60;
+      color: white;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s;
+      margin-bottom: 20px;
+    }
+
+    #print-report:hover {
+      background-color: #219150;
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+      .container {
+        width: 100%;
+        padding: 10px;
+      }
+
+      .card {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Agrochain Platform Report</h1>
+  <button id="print-report"><i class="fas fa-print"></i> Print Report</button>
+
+  <div class="container">
+    <!-- Farmers Section -->
+    <div id="farmers-section">
+      <h2 class="section-title">Farmers</h2>
+      <div class="section-container" id="farmers-container"></div>
+    </div>
+
+    <!-- Buyers Section -->
+    <div id="buyers-section">
+      <h2 class="section-title">Buyers</h2>
+      <div class="section-container" id="buyers-container"></div>
+    </div>
+
+    <!-- Products Section -->
+    <div id="products-section">
+      <h2 class="section-title">Products</h2>
+      <div class="section-container" id="products-container"></div>
+    </div>
+
+    <!-- Orders Section -->
+    <div id="orders-section">
+      <h2 class="section-title">Orders</h2>
+      <div class="section-container" id="orders-container"></div>
+    </div>
+  </div>
+
+  <script>
+    fetch('/api/report')
+      .then(response => response.json())
+      .then(data => {
+        // Render Farmers Section
+        const farmersContainer = document.getElementById('farmers-container');
+        data.farmers.forEach(farmerData => {
+          let farmerHTML = `
+            <div class="card">
+              <h3>Farmer: ${farmerData.farmer.name} (ID: ${farmerData.farmer.id})</h3>
+              <p><strong>Email:</strong> ${farmerData.farmer.email}</p>
+              <p><strong>Location:</strong> ${farmerData.farmer.location}</p>
+            </div>
+          `;
+          farmersContainer.innerHTML += farmerHTML;
+        });
+
+        // Render Buyers Section
+        const buyersContainer = document.getElementById('buyers-container');
+        data.buyers.forEach(buyer => {
+          let buyerHTML = `
+            <div class="card">
+              <h3>Buyer: ${buyer.name} (ID: ${buyer.id})</h3>
+              <p><strong>Email:</strong> ${buyer.email}</p>
+              <p><strong>Contact:</strong> ${buyer.contact}</p>
+            </div>
+          `;
+          buyersContainer.innerHTML += buyerHTML;
+        });
+
+        // Render Products Section
+        const productsContainer = document.getElementById('products-container');
+        data.farmers.forEach(farmerData => {
+          farmerData.products.forEach(product => {
+            let productHTML = `
+              <div class="card product">
+                <img src="/uploads/${product.image}" alt="${product.name}" />
+                <div class="product-info">
+                  <p><strong>Product ID:</strong> ${product.pId}</p>
+                  <p><strong>Farmer ID:</strong> ${farmerData.farmer.id}</p>
+                  <p><strong>Uploaded on:</strong> ${new Date(product.date_of_upload).toLocaleDateString()}</p>
+                  <p><strong>Product Name:</strong> ${product.name}</p>
+                  <p><strong>Price (Per kg):</strong> &#8377;${product.price}</p>
+                  <p><strong>Description:</strong> ${product.description}</p>
+                </div>
+              </div>
+            `;
+            productsContainer.innerHTML += productHTML;
+          });
+        });
+
+        // Render Orders Section
+        const ordersContainer = document.getElementById('orders-container');
+        data.farmers.forEach(farmerData => {
+          farmerData.orders.forEach(order => {
+            let orderHTML = `
+              <div class="card order">
+                <p><strong>Order ID:</strong> ${order.orderId}</p>
+                
+                 <p><strong>Product ID:</strong> ${order.productId}</p>
+                 <p><strong>Farmer ID:</strong> ${order.farmer_id}</p>
+                 <p><strong>Product Name:</strong> ${order.productName}</p>
+                <p><strong>Buyer ID:</strong> ${order.buyerId}</p>
+               <p><strong>Buyer Name:</strong> ${order.buyerName}</p>
+                <p><strong>Buyer Contact:</strong> ${order.buyerContact}</p>
+                <p><strong>Delivery Address:</strong> ${order.buyerAddress}</p>
+                <p><strong>Confirmation ID:</strong> ${order.uniqueId}</p>
+                 <p><strong>Order Date:</strong> ${new Date(order.orderDate).toLocaleDateString()}</p>
+                <p><strong>Quantity:</strong> ${order.quantity}</p>
+                <p><strong>Price(Per kg):</strong> &#8377;${order.price}</p>
+                <p><strong>Total Amount:</strong> &#8377;${order.totalAmt}</p>
+                <p><strong>Order Status:</strong> ${order.orderStatus}</p>
+              </div>
+            `;
+            ordersContainer.innerHTML += orderHTML;
+          });
+        });
+      })
+      .catch(error => {
+        console.error('Error fetching report:', error);
+      });
+
+    // Print report functionality
+    document.getElementById('print-report').addEventListener('click', () => {
+      window.print();
+    });
+  </script>
+
+</body>
+</html>
